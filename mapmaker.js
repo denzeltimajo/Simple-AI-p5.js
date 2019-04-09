@@ -47,8 +47,18 @@ function draw() {
     ellipse(x2, y2, 7, 7);
 
     line(x1, y1, x2, y2);
-  }
+    pp = line_itersection(createVector(x1,y1), createVector(x2,y2),
+                     createVector(0,0), createVector(canvasWidth, canvasHeight))
+    if(pp !== null){
+      push()
+      fill(0xff,0x00, 0x00)
+      ellipse(pp.x, pp.y, 5,5)
+      pop()
 
+      let d = int(dist(x1, y1, pp.x, pp.y))
+      text(d, 10, 10)
+    }
+  }
 }
 
 function keyPressed() {
@@ -78,7 +88,7 @@ function keyPressed() {
         for(i=0; i < poly.length; i++){
           ppapoly.push(
               {x: poly[i].x, 
-              y: poly[i].y
+               y: poly[i].y
               });
         }
         ppap.push(ppapoly)
@@ -105,4 +115,36 @@ function mouseClicked() {
 
   tempMouseX = mouseX
   tempMouseY = mouseY
+}
+
+function line_itersection(pointOneStart, pointOneEnd, pointTwoStart, pointTwoEnd) {
+  let x1 = pointOneStart.x;
+  let y1 = pointOneStart.y;
+  let x2 = pointOneEnd.x;
+  let y2 = pointOneEnd.y;
+  
+  let x3 = pointTwoStart.x;
+  let y3 = pointTwoStart.y;
+  let x4 = pointTwoEnd.x;
+  let y4 = pointTwoEnd.y;
+  
+  let bx = x2 - x1;
+  let by = y2 - y1;
+  let dx = x4 - x3;
+  let dy = y4 - y3;
+ 
+  let b_dot_d_perp = bx * dy - by * dx;
+ 
+  if(b_dot_d_perp == 0) return null;
+ 
+  let cx = x3 - x1;
+  let cy = y3 - y1;
+ 
+  let t = (cx * dy - cy * dx) / b_dot_d_perp;
+  if(t < 0 || t > 1) return null;
+ 
+  let u = (cx * by - cy * bx) / b_dot_d_perp;
+  if(u < 0 || u > 1) return null;
+ 
+  return new createVector(x1+t*bx, y1+t*by);
 }

@@ -15,6 +15,8 @@ Population.prototype.show = function(){
 Population.prototype.update = function(polyWalls){
     for(let i = 0; i < this.tris.length; i++){
         this.tris[i].move()
+
+        this.tris[i].sight(polyWalls)
     
         this.tris[i].update(polyWalls)
     }
