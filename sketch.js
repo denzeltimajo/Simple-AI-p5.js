@@ -1,29 +1,23 @@
 let population;
 let polyWall;
-// goal is now a polygon
-
-let canvasWidth = 1000
-let canvasHeight = 600
+let goal = [{"x":906,"y":233},{"x":904,"y":254},{"x":920,"y":252},{"x":918,"y":233}]
 
 let filename = 'simple'
 let polyJSON = {}
 
-var randomPoly = []
-var canvasWalls = []
-
 function preload(){
-
   polyJSON = loadJSON('maps/'+filename+'.json')
 }
 
 function setup() {
   // put setup code here
-  createCanvas(canvasWidth, canvasHeight)
+  createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT)
 
+  // UNCOMMENT TO INCREASE/DECREASE FPS
   // frameRate(20)
   angleMode(DEGREES)
 
-  polyWall = new PolyWall(canvasWidth, canvasHeight, polyJSON)
+  polyWall = new PolyWall(CANVAS_WIDTH, CANVAS_HEIGHT, polyJSON)
   population = new Population(1)
 
   polyWall.addWalls()
@@ -41,10 +35,20 @@ function draw() {
 
   population.show()
 
-  // fill(0x00)
-  // text('X: ' + p1.x, 10, 30);
-  // fill(0x00)
-  // text('Y: ' + p1.y, 10, 60);
-  
+  if(!BLOCK_SCREEN){
+    render_goal(goal)
+  }
    
+}
+
+function render_goal(goalPoly){
+  push()
+  fill(0xff,0xf1,0x76)
+  strokeWeight(0.5);
+  beginShape();
+  for(i=0; i < goalPoly.length; i++){
+      vertex(goalPoly[i].x,goalPoly[i].y);
+  }
+  endShape(CLOSE);
+  pop()
 }

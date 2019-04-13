@@ -1,11 +1,11 @@
-function Tri(){
+function Tri(triSize){
     //Brain class
 
     this.MOVEMENT_SPEED_MODES = [0.3, 0.5, 0.7]
     this.ROTATION_SPEED_MODES = [3, 5, 7]
-    this.SIGHT_LENGTH = 1166
+    this.SIGHT_LENGTH = int(sqrt(sq(CANVAS_HEIGHT) + sq(CANVAS_WIDTH)))
 
-    this.triSize = 10
+    this.triSize = triSize
     this.triRotation = 0
     this.posX = 0 + (this.triSize/2)
     this.posY = Math.random() * 600
@@ -17,65 +17,95 @@ function Tri(){
     
     this.currentTri = trianglePoints(this.triRotation, this.triSize, this.posX, this.posY)
 
+    // Sight distance has a difference of [2, 2, 5, 2, 2]
     this.sightsDist = new Array(5)
     this.isGoal = [false, false, false, false, false]
 
+    // Point(x,y) of the line intersection of Tri's sight
     this.wallPoints = new Array(5)
 
     this.isDead = false
+    this.isWin = false
 }
 
-Tri.prototype.show = function(){
+Tri.prototype.showTri = function(){
     this.currentTri = trianglePoints(this.triRotation, this.triSize, this.posX, this.posY)
 
     if(this.isDead){
-        fill(0xff, 0xeb, 0x3b);
+        fill(0xe5, 0x39, 0x35);
     }
     else{
         fill(0x8b, 0xc3, 0x4a);
     }
 
     triangle.apply(this, this.currentTri)
-
-    for(let i=0; i < this.wallPoints.length; i++){
-        if(this.wallPoints[i]){
-            push()
-            stroke(0x88, 0x88)
-            line(this.wallPoints[i].x, this.wallPoints[i].y, this.posX, this.posY)
-            pop()
-            push()
-            fill(0xff,0x00, 0x00)
-            ellipse(this.wallPoints[i].x, this.wallPoints[i].y, 5,5)
-            pop()
-            
-            push();
-            translate((this.wallPoints[i].x + this.posX) / 2, (this.wallPoints[i].y + this.posY) / 2);
-            rotate(atan2(this.posY - this.wallPoints[i].y, this.posX - this.wallPoints[i].x));
-            text(nfc(this.sightsDist[i], 1), 0, -5);
-            pop();
-        }
-    }
     
 }
 
-Tri.prototype.update = function(pWs){
+Tri.prototype.showHUD = function(){
+    if(BLOCK_SCREEN){
+        beginShape()
+        fill(0)
+        vertex(CANVAS_WIDTH,CANVAS_HEIGHT);
+        vertex(0,CANVAS_HEIGHT);
+        vertex(0,0);
+        vertex(CANVAS_WIDTH,0);
+        endShape(CLOSE)
+    }
+
+    for(let i=0; i < this.wallPoints.length; i++){
+        if(this.wallPoints[i]){
+            if(SHOW_SIGHT_LINES){
+                push()
+                stroke(0x88, 0x88)
+                line(this.wallPoints[i].x, this.wallPoints[i].y, this.posX, this.posY)
+                pop()
+
+                push()
+                fill(0xff,0x00, 0x00)
+                ellipse(this.wallPoints[i].x, this.wallPoints[i].y, 5,5)
+                pop()
+            }
+
+            if(SHOW_SIGHT_DISTANCE){
+                push();
+                fill(0xff)
+
+                if(this.isGoal[i]){
+                    fill(0xff,0xeb,0x3b)
+                }
+
+                if(this.isDead){
+                    fill(0xff,0,0)
+                }
+                // translate((this.wallPoints[i].x + this.posX) / 2, (this.wallPoints[i].y + this.posY) / 2);
+                // text(nfc(this.sightsDist[i], 1), 0, -5);
+                text(nfc(this.sightsDist[i], 1), (i*160)+100, 300);
+                pop();
+            }
+        }
+    }
+}
+
+Tri.prototype.update = function(polyWalls, goalPoly){
     this.polyTri = [createVector(this.currentTri[0], this.currentTri[1]),
                     createVector(this.currentTri[2], this.currentTri[3]),
                     createVector(this.currentTri[4], this.currentTri[5]),
                    ]
 
-    for(let i = 0; i < pWs.length; i++){
-        this.isDead = collidePolyPoly(this.polyTri,pWs[i],true);
+    for(let i = 0; i < polyWalls.length; i++){
+        this.isDead = collidePolyPoly(this.polyTri, polyWalls[i], true);
         if(this.isDead){
             return
         }
     }
         
+    this.isWin = collidePolyPoly(this.polyTri, goalPoly, true);
 
 }
 
 
-Tri.prototype.sight = function(polyWalls){
+Tri.prototype.sight = function(polyWalls, goalPoly){
     for(let i3 = 0; i3 < this.wallPoints.length; i3++){
         lp1x = xCirclePoint((-90 + (i3*45)) + this.triRotation, this.triSize, this.posX)
         lp1y = yCirclePoint((-90 + (i3*45)) + this.triRotation, this.triSize, this.posY)
@@ -89,10 +119,23 @@ Tri.prototype.sight = function(polyWalls){
 
         let mainPoint = null
         let shortestDist = this.SIGHT_LENGTH
+        let isLookingAtGoal = false
 
         for(let i1 = 0; i1 < polyWalls.length; i1++){
-            let polygon = polyWalls[i1]
+            let isGoalPolyOn 
+            let polygon
+
+            if(i1 == polyWalls.length){
+                isGoalPolyOn = true
+                polygon = goalPoly
+            }
+            else{
+                isGoalPolyOn = false
+                polygon = polyWalls[i1]
+            }
+
             let polyEdgeCount = polygon.length
+
 
             for(let i2 = 0; i2 < polyEdgeCount; i2++){
                 let tempP1 = createVector(polygon[i2].x, polygon[i2].y)
@@ -101,21 +144,24 @@ Tri.prototype.sight = function(polyWalls){
                                           polygon[(i2 + 1) % polyEdgeCount].y)
             
                 let intersectPoint = lineItersection(createVector(sLine.x1, sLine.y1),
-                                              createVector(this.posX, this.posY), 
-                                              tempP1, tempP2)
+                                                     createVector(this.posX, this.posY), 
+                                                     tempP1, tempP2)
                 if(intersectPoint){
                     let d = int(dist(this.posX, this.posY, intersectPoint.x, intersectPoint.y))
                     if(shortestDist > d){
                         shortestDist = d 
                         mainPoint = intersectPoint
+                        isLookingAtGoal = isGoalPolyOn
                     }
                 }
             }
 
         }
 
+
         this.wallPoints[i3] = mainPoint
         this.sightsDist[i3] = shortestDist
+        this.isGoal[i3] = isLookingAtGoal
     }
 }
 
