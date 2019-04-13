@@ -38,6 +38,10 @@ Tri.prototype.showTri = function(){
         fill(0x8b, 0xc3, 0x4a);
     }
 
+    if(this.isWin){
+        fill(0xff, 0xeb, 0x3b);
+    }
+
     triangle.apply(this, this.currentTri)
     
 }
@@ -63,6 +67,9 @@ Tri.prototype.showHUD = function(){
 
                 push()
                 fill(0xff,0x00, 0x00)
+                if(this.isGoal[i]){
+                    fill(0xff,0xeb,0x3b)
+                }
                 ellipse(this.wallPoints[i].x, this.wallPoints[i].y, 5,5)
                 pop()
             }
@@ -70,7 +77,7 @@ Tri.prototype.showHUD = function(){
             if(SHOW_SIGHT_DISTANCE){
                 push();
                 fill(0xff)
-
+                
                 if(this.isGoal[i]){
                     fill(0xff,0xeb,0x3b)
                 }
@@ -80,12 +87,15 @@ Tri.prototype.showHUD = function(){
                 }
                 // translate((this.wallPoints[i].x + this.posX) / 2, (this.wallPoints[i].y + this.posY) / 2);
                 // text(nfc(this.sightsDist[i], 1), 0, -5);
-                text(nfc(this.sightsDist[i], 1), (i*160)+100, 300);
+                
+                text(nfc(this.sightsDist[i], 1), (i*160)+100, 400 - TEMP_ELEVATION[i]);
                 pop();
             }
         }
     }
 }
+
+TEMP_ELEVATION = [0,100,200,100,0]
 
 Tri.prototype.update = function(polyWalls, goalPoly){
     this.polyTri = [createVector(this.currentTri[0], this.currentTri[1]),
@@ -100,7 +110,10 @@ Tri.prototype.update = function(polyWalls, goalPoly){
         }
     }
         
-    this.isWin = collidePolyPoly(this.polyTri, goalPoly, true);
+    if(collidePolyPoly(this.polyTri, goalPoly, true)){
+        this.isWin = true;
+    }
+    
 
 }
 
@@ -121,7 +134,7 @@ Tri.prototype.sight = function(polyWalls, goalPoly){
         let shortestDist = this.SIGHT_LENGTH
         let isLookingAtGoal = false
 
-        for(let i1 = 0; i1 < polyWalls.length; i1++){
+        for(let i1 = 0; i1 <= polyWalls.length; i1++){
             let isGoalPolyOn 
             let polygon
 

@@ -1,8 +1,7 @@
 let population;
 let polyWall;
-let goal = [{"x":906,"y":233},{"x":904,"y":254},{"x":920,"y":252},{"x":918,"y":233}]
 
-let filename = 'simple'
+let filename = 'sample'
 let polyJSON = {}
 
 function preload(){
@@ -31,12 +30,12 @@ function draw() {
 
   polyWall.renderWalls()
 
-  population.update(polyWall.polyWalls)
+  population.update(polyWall.polyWalls, GOAL)
 
   population.show()
 
   if(!BLOCK_SCREEN){
-    render_goal(goal)
+    render_goal(GOAL)
   }
    
 }
