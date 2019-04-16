@@ -5,10 +5,12 @@ function Tri(triSize){
     this.ROTATION_SPEED_MODES = [3, 5, 7]
     this.SIGHT_LENGTH = int(sqrt(sq(CANVAS_HEIGHT) + sq(CANVAS_WIDTH)))
 
+    this.brain = new Brain()
+
     this.triSize = triSize
     this.triRotation = 0
-    this.posX = 0 + (this.triSize/2)
-    this.posY = Math.random() * 600
+    this.posX = TRI_START_POINT_X
+    this.posY = TRI_START_POINT_Y
 
     this.movementSpeed = 0.5
     this.rotationSpeed = 5
@@ -62,6 +64,9 @@ Tri.prototype.showHUD = function(){
             if(SHOW_SIGHT_LINES){
                 push()
                 stroke(0x88, 0x88)
+                if(this.isGoal[i]){
+                    stroke(255, 204, 0);
+                }
                 line(this.wallPoints[i].x, this.wallPoints[i].y, this.posX, this.posY)
                 pop()
 
@@ -88,14 +93,12 @@ Tri.prototype.showHUD = function(){
                 // translate((this.wallPoints[i].x + this.posX) / 2, (this.wallPoints[i].y + this.posY) / 2);
                 // text(nfc(this.sightsDist[i], 1), 0, -5);
                 
-                text(nfc(this.sightsDist[i], 1), (i*160)+100, 400 - TEMP_ELEVATION[i]);
+                text(nfc(this.sightsDist[i], 1), (i*160)+100, 400 - TEXT_ELEVATION[i]);
                 pop();
             }
         }
     }
 }
-
-TEMP_ELEVATION = [0,100,200,100,0]
 
 Tri.prototype.update = function(polyWalls, goalPoly){
     this.polyTri = [createVector(this.currentTri[0], this.currentTri[1]),
@@ -189,7 +192,6 @@ Tri.prototype.move = function(){
             this.triRotation += this.rotationSpeed
         }
         if (keyIsDown(UP_ARROW)) {
-            
             this.posX += float(xCirclePoint(this.triRotation, this.triSize*this.movementSpeed, this.posX)) - this.posX
             this.posY += float(yCirclePoint(this.triRotation, this.triSize*this.movementSpeed, this.posY)) - this.posY
         }
@@ -222,8 +224,13 @@ Tri.prototype.move = function(){
         if (keyIsDown(68)) {
             this.rotationSpeed = this.ROTATION_SPEED_MODES[2]
         }
+
     }
 
+}
+
+Tri.prototype.think = function(){
+    this.brain.test()
 }
 
 

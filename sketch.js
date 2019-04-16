@@ -1,7 +1,7 @@
 let population;
 let polyWall;
 
-let filename = 'sample'
+let filename = 'simple'
 let polyJSON = {}
 
 function preload(){
@@ -13,7 +13,7 @@ function setup() {
   createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT)
 
   // UNCOMMENT TO INCREASE/DECREASE FPS
-  // frameRate(20)
+  // frameRate(2000)
   angleMode(DEGREES)
 
   polyWall = new PolyWall(CANVAS_WIDTH, CANVAS_HEIGHT, polyJSON)
@@ -37,7 +37,7 @@ function draw() {
   if(!BLOCK_SCREEN){
     render_goal(GOAL)
   }
-   
+  
 }
 
 function render_goal(goalPoly){

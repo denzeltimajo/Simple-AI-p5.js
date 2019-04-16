@@ -25,6 +25,8 @@ Population.prototype.update = function(polyWalls, goalPoly){
             this.tris[i].sight(wall_copy(polyWalls), goalPoly)
 
             this.tris[i].update(polyWalls, goalPoly)
+
+            this.tris[i].think()
         }
     }
 }
