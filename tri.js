@@ -59,6 +59,8 @@ Tri.prototype.showHUD = function(){
         endShape(CLOSE)
     }
 
+    this.think()
+
     for(let i=0; i < this.wallPoints.length; i++){
         if(this.wallPoints[i]){
             if(SHOW_SIGHT_LINES){
@@ -230,9 +232,8 @@ Tri.prototype.move = function(){
 }
 
 Tri.prototype.think = function(){
-    this.brain.test()
+    this.brain.test(this.sightsDist.map((x) => x))
 }
-
 
 function scaleLine(x1, y1, x2, y2, scaleFactor){
      scaleFactor = scaleFactor/5

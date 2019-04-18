@@ -11,9 +11,9 @@ Population.prototype.show = function(){
         this.tris[i].showTri()
 
         // Will not process this part if both are false
-        if(SHOW_SIGHT_LINES || SHOW_SIGHT_DISTANCE){
+        // if(SHOW_SIGHT_LINES || SHOW_SIGHT_DISTANCE){
             this.tris[i].showHUD()
-        }
+        // }
     }
 }
 
@@ -26,7 +26,7 @@ Population.prototype.update = function(polyWalls, goalPoly){
 
             this.tris[i].update(polyWalls, goalPoly)
 
-            this.tris[i].think()
+            // this.tris[i].think()
         }
     }
 }
