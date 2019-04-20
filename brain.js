@@ -187,13 +187,14 @@ Brain.prototype.test = function(sights){
 
 }
 
-function keyPressed(){
-    if (keyIsDown(81)) {
-        ON_TRAINING = !ON_TRAINING
-    }
-}
+// TODO: kete UNCOMMENT WHEN TENSORFLOW TESTING
+// function keyPressed(){
+//     if (keyIsDown(81)) {
+//         ON_TRAINING = !ON_TRAINING
+//     }
+// }
 
-function mousePressed(){
-    TRUE_MOUSE_PRESS = true
-    console.log('msosue press')
-}
+// function mousePressed(){
+//     TRUE_MOUSE_PRESS = true
+//     console.log('msosue press')
+// }

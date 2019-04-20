@@ -17,8 +17,6 @@ function Tri(triSize){
     this.movementSpeed = 0.5
     this.rotationSpeed = 5
 
-    this.polyTri = new Array(3)
-    
     this.currentTri = trianglePoints(this.triRotation, this.triSize, this.posX, this.posY)
 
     // Sight distance has a difference of [2, 2, 5, 2, 2]
@@ -35,6 +33,8 @@ function Tri(triSize){
 Tri.prototype.showTri = function(){
     this.currentTri = trianglePoints(this.triRotation, this.triSize, this.posX, this.posY)
 
+    push()
+
     if(this.isDead){
         fill(0xe5, 0x39, 0x35);
     }
@@ -46,8 +46,18 @@ Tri.prototype.showTri = function(){
         fill(0xff, 0xeb, 0x3b);
     }
 
-    triangle.apply(this, this.currentTri)
-    
+    strokeWeight(0.6)
+
+    beginShape();
+    for(i=0; i < this.currentTri.length; i++){
+        vertex(this.currentTri[i].x, this.currentTri[i].y);
+    }
+    endShape(CLOSE);
+
+    // console.log(this.currentTri)
+
+    // triangle.apply(this, this.currentTri)
+    pop()
 }
 
 Tri.prototype.showHUD = function(){
@@ -91,16 +101,17 @@ Tri.prototype.showHUD = function(){
                 fill(0xff)
                 
                 if(this.isGoal[i]){
-                    fill(0xff,0xeb,0x3b)
+                    fill(0xfb,0xc0,0x2d)
                 }
 
                 if(this.isDead){
                     fill(0xff,0,0)
                 }
-                // translate((this.wallPoints[i].x + this.posX) / 2, (this.wallPoints[i].y + this.posY) / 2);
-                // text(nfc(this.sightsDist[i], 1), 0, -5);
+                strokeWeight(10)
+                translate((this.wallPoints[i].x + this.posX) / 2, (this.wallPoints[i].y + this.posY) / 2);
+                text(nfc(this.sightsDist[i], 0), 0, -5);
                 
-                text(nfc(this.sightsDist[i], 1), (i*160)+100, 400 - TEXT_ELEVATION[i]);
+                // text(nfc(this.sightsDist[i], 1), (i*160)+100, 400 - TEXT_ELEVATION[i]);
                 pop();
             }
         }
@@ -108,19 +119,15 @@ Tri.prototype.showHUD = function(){
 }
 
 Tri.prototype.update = function(polyWalls, goalPoly){
-    this.polyTri = [createVector(this.currentTri[0], this.currentTri[1]),
-                    createVector(this.currentTri[2], this.currentTri[3]),
-                    createVector(this.currentTri[4], this.currentTri[5]),
-                   ]
 
     for(let i = 0; i < polyWalls.length; i++){
-        this.isDead = collidePolyPoly(this.polyTri, polyWalls[i], true);
+        this.isDead = collidePolyPoly(this.currentTri, polyWalls[i], true);
         if(this.isDead){
             return
         }
     }
         
-    if(collidePolyPoly(this.polyTri, goalPoly, true)){
+    if(collidePolyPoly(this.currentTri, goalPoly, true)){
         this.isWin = true;
     }
     
@@ -290,12 +297,15 @@ function lineItersection(pointOneStart, pointOneEnd, pointTwoStart, pointTwoEnd)
   
 
 function trianglePoints(tR, tS, posX, posY){
-    pointsList = []
-    for(i = 0; i<3; i++){
-      pointsList = pointsList.concat(xCirclePoint((i*120)+tR, tS, posX),
-                                     yCirclePoint((i*120)+tR, tS, posY))
+    let pointsList = []
+    for(let i = 0; i<3; i++){
+      pointsList.push(createVector(xCirclePoint((i*120)+tR, tS, posX),
+                                   yCirclePoint((i*120)+tR, tS, posY),)
+                     )
     }
-    return pointsList
+    return pointsList.slice(0,2)
+            .concat(createVector(posX, posY))
+            .concat(pointsList.slice(2))
 }
 
 function xCirclePoint(t, radds, posX){

@@ -18,7 +18,7 @@ PolyWall.prototype.renderWalls = function() {
         poly = this.polyWalls[x]
         beginShape();
         for(i=0; i < poly.length; i++){
-            vertex(poly[i].x,poly[i].y);
+            vertex(poly[i].x, poly[i].y);
         }
         endShape(CLOSE);
     }
