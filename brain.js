@@ -5,15 +5,117 @@ function Brain(){
     this.xPoints = []
     this.yPoints = []
 
+    this.model = tf.sequential()
+
+    const hidden = tf.layers.dense({
+        units: 4,
+        inputShape: [2],
+        activation: 'sigmoid'
+    })
+
+    this.model.add(hidden)
+
+    const output = tf.layers.dense({
+        units: 1,
+        activation: 'sigmoid'
+    })
+    this.model.add(output)
+
     this.a = tf.variable(tf.scalar(random(-1, 1)))
     this.b = tf.variable(tf.scalar(random(-1, 1)))
     this.c = tf.variable(tf.scalar(random(-1, 1)))
     this.d = tf.variable(tf.scalar(random(-1, 1)))
 
     this.learningRate = 0.03;
-    this.optimizer = tf.train.adam(this.learningRate);
+    this.optimizer = tf.train.sgd(this.learningRate);
 
-    console.log("m:"+this.m+";b:"+this.b)
+    this.model.compile({
+        optimizer: this.optimizer,
+        loss: tf.losses.meanSquaredError,
+
+    })
+
+    this.model.layers[0].setWeights(
+        [
+            tf.tensor(
+                // For Hidden Layer w
+                [[5.3980837 , -3.8279319, -5.5862536, -1.3197135],
+                 [-6.0987945, 3.2092226 , 4.9390283 , -0.5350654]]
+            ),
+        
+            tf.tensor(
+                // For Hidden Layer b
+                [-2.8283997, -2.092407, -2.815907, 0.301287]
+            )
+        ]
+    )
+
+    this.model.layers[1].setWeights(
+        [
+            tf.tensor(
+                // For Output Layer w
+                [[9.3258753 ],
+                 [3.6948686 ],
+                 [7.2076254 ],
+                 [-2.1022294]]
+            ),
+        
+            tf.tensor(
+                // For Output Layer b
+                [-4.1696444]
+            )
+        ]    
+        
+    )
+
+    const xs = tf.tensor([
+        [1.0, 1.0],
+        [1.0, 0.0],
+        [0.0, 1.0],
+        [0.0, 0.0],
+    ])
+
+    const ys = tf.tensor([
+        [0.0],
+        [1.0],
+        [1.0],
+        [0.0],
+    ])
+
+    // const history = this.model.fit(xs, ys)\
+    this.fitAndFunky(xs, ys)
+        .then((response) => {
+            console.log("DONE")
+
+            const inputs = tf.tensor([[0.0, 0.0]])
+            xs.print()
+            const outputs = this.model.predict(xs)
+            outputs.print()
+            let values = outputs.dataSync()
+
+            for(let i=0; i<values.length; i++){
+                console.log(i+" : "+Math.round(values[i]))
+            }
+
+            console.log('WEIGHTS')
+            const weight = this.model.getWeights()
+            for(let i=0; i<weight.length; i++){
+                weight[i].print()
+            }
+
+        })
+    
+
+    
+}
+
+Brain.prototype.fitAndFunky = async function(xs, ys){
+    for(let i=0; i<10; i++){
+        response = await this.model.fit(xs, ys, {
+            epochs: 20,
+        })
+        console.log(response.history.loss[0])
+    }
 }
 
 Brain.prototype.predict = function(xPoints){
@@ -84,11 +186,13 @@ Brain.prototype.test = function(sights){
     pop()
 
 }
+
 function keyPressed(){
     if (keyIsDown(81)) {
         ON_TRAINING = !ON_TRAINING
     }
 }
+
 function mousePressed(){
     TRUE_MOUSE_PRESS = true
     console.log('msosue press')

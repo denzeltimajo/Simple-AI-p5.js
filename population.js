@@ -11,9 +11,10 @@ Population.prototype.show = function(){
         this.tris[i].showTri()
 
         // Will not process this part if both are false
-        // if(SHOW_SIGHT_LINES || SHOW_SIGHT_DISTANCE){
+        // TODO: kete REMOVE ENABLE TEST BRAIN
+        if(SHOW_SIGHT_LINES || SHOW_SIGHT_DISTANCE || ENABLE_TEST_BRAIN){
             this.tris[i].showHUD()
-        // }
+        }
     }
 }
 

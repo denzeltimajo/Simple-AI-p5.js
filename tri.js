@@ -5,8 +5,10 @@ function Tri(triSize){
     this.ROTATION_SPEED_MODES = [3, 5, 7]
     this.SIGHT_LENGTH = int(sqrt(sq(CANVAS_HEIGHT) + sq(CANVAS_WIDTH)))
 
-    this.brain = new Brain()
-
+    if(ENABLE_TEST_BRAIN){
+        this.brain = new Brain()
+    }
+    
     this.triSize = triSize
     this.triRotation = 0
     this.posX = TRI_START_POINT_X
@@ -59,7 +61,10 @@ Tri.prototype.showHUD = function(){
         endShape(CLOSE)
     }
 
-    this.think()
+    // TODO: kete REMOVE THINK LINES BELOW
+    if(ENABLE_TEST_BRAIN){
+        this.think()
+    }
 
     for(let i=0; i < this.wallPoints.length; i++){
         if(this.wallPoints[i]){
