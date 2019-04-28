@@ -65,7 +65,6 @@ function Brain(){
                 [-4.1696444]
             )
         ]    
-        
     )
 
     const xs = tf.tensor([
@@ -188,13 +187,12 @@ Brain.prototype.test = function(sights){
 }
 
 // TODO: kete UNCOMMENT WHEN TENSORFLOW TESTING
-// function keyPressed(){
-//     if (keyIsDown(81)) {
-//         ON_TRAINING = !ON_TRAINING
-//     }
-// }
+function keyPressed(){
+    if (keyIsDown(81)) {
+        ON_TRAINING = !ON_TRAINING
+    }
+}
 
-// function mousePressed(){
-//     TRUE_MOUSE_PRESS = true
-//     console.log('msosue press')
-// }
+function mousePressed(){
+    TRUE_MOUSE_PRESS = true
+}

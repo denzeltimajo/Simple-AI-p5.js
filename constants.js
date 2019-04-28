@@ -13,9 +13,9 @@ const TRI_START_POINT_Y = 300
 
 const TEXT_ELEVATION = [0,100,200,100,0]
 
-let ENABLE_TEST_BRAIN = false
+let ENABLE_TEST_BRAIN = true
 
 let SHOW_SIGHT_LINES = false
 let SHOW_SIGHT_DISTANCE = false
 
-let BLOCK_SCREEN = false
+let BLOCK_SCREEN = true
