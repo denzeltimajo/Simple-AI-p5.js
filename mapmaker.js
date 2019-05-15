@@ -1,20 +1,29 @@
 //example adapted from Jeffrey Thompson
-var hit = false
-var police = []
-var polyTrigger = false
+let hit = false
+let police = []
 
-let canvasWidth = 1000
-let canvasHeight = 600
+let polyTrigger = false
+let triTrigger = false
+let Trigger = false
+
+let canvasWidth = CANVAS_WIDTH
+let canvasHeight = CANVAS_HEIGHT
 
 function setup() {
 	createCanvas(canvasWidth, canvasHeight)
-	collideDebug(true) //enable debug mode
+  collideDebug(true) //enable debug mode
+  
+  angleMode(DEGREES)
 }
 
-var tempMouseX
-var tempMouseY
+let tempMouseX
+let tempMouseY
 
-var tempPolArr = []
+let tempPolArr = []
+
+
+let triData
+
 
 function draw() {
 	background(0xe0);
@@ -47,60 +56,47 @@ function draw() {
     ellipse(x2, y2, 7, 7);
 
     line(x1, y1, x2, y2);
-    pp = line_itersection(createVector(x1,y1), createVector(x2,y2),
-                     createVector(0,0), createVector(canvasWidth, canvasHeight))
-    if(pp !== null){
-      push()
-      fill(0xff,0x00, 0x00)
-      ellipse(pp.x, pp.y, 5,5)
-      pop()
-
-      let d = int(dist(x1, y1, pp.x, pp.y))
-      text(d, 10, 10)
-    }
   }
+
+  push()
+  strokeWeight(0.6)
+  stroke('#0005')
+
+  fill('#0f05')
+  triData = trianglePoints(-90, 10, mouseX, mouseY)
+  beginShape();
+    for(i=0; i < triData.length; i++){
+        vertex(triData[i].x, triData[i].y);
+    }
+    endShape(CLOSE);
+  pop()
 }
 
 function keyPressed() {
   console.log(keyCode)
   
+  // SPACE
   if (keyIsDown(32)) {
     police.push(tempPolArr)
     tempPolArr = []
     polyTrigger = false
   }
-  if (keyIsDown(46)) {
+  
+  // DELETE or ESC
+  if (keyIsDown(46) || keyIsDown(27)) {
     tempPolArr = []
     polyTrigger = false
   }
+  // R
   if (keyIsDown(82)) {
-    filename = prompt("Please enter file name", "");
-
-    if (filename == null || filename == "") {
-      console.log("User cancelled the prompt.")
-    }
-    else{
-      ppap = []
-
-      for(x=0; x < police.length; x++){
-        poly = police[x]
-        ppapoly = []
-        for(i=0; i < poly.length; i++){
-          ppapoly.push(
-              {x: poly[i].x, 
-               y: poly[i].y
-              });
-        }
-        ppap.push(ppapoly)
-      }
-
-      console.log(JSON.stringify(ppap))
-      saveJSON(ppap, filename+'.json');
-    }
+    saveMapJSON()
   }
+
+  // F5
   if (keyIsDown(116)) {
     reload()
   }
+
   // if (keyIsDown(90)) {
   //   // UNDO
   //   movementSpeed = 0.7
@@ -108,6 +104,37 @@ function keyPressed() {
 
   return false; // prevent default
 }
+
+
+function saveMapJSON(){
+  let filename = prompt("Please enter file name", "");
+
+  if (filename == null || filename == "") {
+    console.log("User cancelled the prompt.")
+    return
+  }
+
+  let mapJSONData = {}
+
+  let ppap = []
+
+  for(let x=0; x < police.length; x++){
+    let poly = police[x]
+    let ppapoly = []
+    for(let i=0; i < poly.length; i++){
+      ppapoly.push(
+          {x: poly[i].x, 
+            y: poly[i].y
+          });
+    }
+    ppap.push(ppapoly)
+  }
+
+  console.log(JSON.stringify(ppap))
+  saveJSON(ppap, filename+'.json');
+
+}
+
 
 function mouseClicked() {
   polyTrigger = true
@@ -117,34 +144,22 @@ function mouseClicked() {
   tempMouseY = mouseY
 }
 
-function line_itersection(pointOneStart, pointOneEnd, pointTwoStart, pointTwoEnd) {
-  let x1 = pointOneStart.x;
-  let y1 = pointOneStart.y;
-  let x2 = pointOneEnd.x;
-  let y2 = pointOneEnd.y;
-  
-  let x3 = pointTwoStart.x;
-  let y3 = pointTwoStart.y;
-  let x4 = pointTwoEnd.x;
-  let y4 = pointTwoEnd.y;
-  
-  let bx = x2 - x1;
-  let by = y2 - y1;
-  let dx = x4 - x3;
-  let dy = y4 - y3;
- 
-  let b_dot_d_perp = bx * dy - by * dx;
- 
-  if(b_dot_d_perp == 0) return null;
- 
-  let cx = x3 - x1;
-  let cy = y3 - y1;
- 
-  let t = (cx * dy - cy * dx) / b_dot_d_perp;
-  if(t < 0 || t > 1) return null;
- 
-  let u = (cx * by - cy * bx) / b_dot_d_perp;
-  if(u < 0 || u > 1) return null;
- 
-  return new createVector(x1+t*bx, y1+t*by);
+function trianglePoints(tRotation, tSize, posX, posY){
+  let pointsList = []
+  for(let i = 0; i<3; i++){
+    pointsList.push(createVector(xCirclePoint((i*120)+tRotation, tSize, posX),
+                                 yCirclePoint((i*120)+tRotation, tSize, posY),)
+                   )
+  }
+  return pointsList.slice(0,2)
+          .concat(createVector(posX, posY))
+          .concat(pointsList.slice(2))
+}
+
+function xCirclePoint(t, radds, posX){
+  return (radds/2) * cos(t) + posX 
+}
+
+function yCirclePoint(t, radds, posY){
+  return (radds/2) * sin(t) + posY
 }
