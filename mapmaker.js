@@ -2,12 +2,19 @@
 let hit = false
 let police = []
 
+let goalPoly = []
+
 let polyTrigger = false
 let triTrigger = false
-let Trigger = false
+let goalTrigger = false
 
 let canvasWidth = CANVAS_WIDTH
 let canvasHeight = CANVAS_HEIGHT
+
+let playerPos = {}
+let playerAngle = 0
+
+const ANGLE_OFFSET = -90
 
 function setup() {
 	createCanvas(canvasWidth, canvasHeight)
@@ -20,24 +27,30 @@ let tempMouseX
 let tempMouseY
 
 let tempPolArr = []
-
+let tempGoalArr = []
 
 let triData
 
+let alphaChar
+
+let x1
+let y1
+let x2
+let y2
 
 function draw() {
 	background(0xe0);
   
   push()
   stroke(0x00,0x00,0xff);
-	for(i=0; i < tempPolArr.length-1; i++){
+	for(let i=0; i < tempPolArr.length-1; i++){
     line(tempPolArr[i].x,tempPolArr[i].y,
          tempPolArr[i+1].x,tempPolArr[i+1].y);
   }
   pop()
 
-  //draw the polygon from the created Vectors above.
-  for(x = 0; x < police.length; x++){
+  // Draw the polygon wall obstacle
+  for(let x = 0; x < police.length; x++){
     poly = police[x]
     beginShape();
     for(i=0; i < poly.length; i++){
@@ -46,11 +59,24 @@ function draw() {
     endShape(CLOSE);
   }
 
+  // Draw the goal polygon 
+  push()
+  stroke(0xff,0xff,0x00);
+  for(let x = 0; x < goalPoly.length; x++){
+    poly = goalPoly[x]
+    beginShape();
+    for(i=0; i < poly.length; i++){
+      vertex(poly[i].x,poly[i].y);
+    }
+    endShape(CLOSE);
+  }
+  pop()
+
   if(polyTrigger){
-    let x1 = tempMouseX;
-    let y1 = tempMouseY;
-    let x2 = mouseX;
-    let y2 = mouseY;
+    x1 = tempMouseX;
+    y1 = tempMouseY;
+    x2 = mouseX;
+    y2 = mouseY;
 
     ellipse(x1, y1, 7, 7);
     ellipse(x2, y2, 7, 7);
@@ -60,16 +86,30 @@ function draw() {
 
   push()
   strokeWeight(0.6)
-  stroke('#0005')
+  
+  alphaChar = 'f'
 
-  fill('#0f05')
-  triData = trianglePoints(-90, 10, mouseX, mouseY)
-  beginShape();
+  if(triTrigger){
+    playerPos.x = mouseX
+    playerPos.y = mouseY
+
+    alphaChar = '5'
+  }
+
+  if(Object.keys(playerPos).length > 0){
+    stroke('#000' + alphaChar)
+    fill('#0f0' + alphaChar)
+
+    triData = trianglePoints(playerAngle + ANGLE_OFFSET, 10, playerPos.x, playerPos.y)
+
+    beginShape();
     for(i=0; i < triData.length; i++){
         vertex(triData[i].x, triData[i].y);
     }
     endShape(CLOSE);
-  pop()
+
+    pop()
+  }
 }
 
 function keyPressed() {
@@ -90,6 +130,20 @@ function keyPressed() {
   // R
   if (keyIsDown(82)) {
     saveMapJSON()
+  }
+  // S
+  if (keyIsDown(83)) {
+    if(!polyTrigger && !goalTrigger) triTrigger = true
+  }
+  // A
+  if (keyIsDown(65)) {
+    let anglePrompt = prompt("Set angle", playerAngle);
+
+    let tempAngle
+    tempAngle = parseFloat(anglePrompt)
+
+    if(!isNaN(tempAngle)) playerAngle = tempAngle
+
   }
 
   // F5
@@ -114,7 +168,12 @@ function saveMapJSON(){
     return
   }
 
-  let mapJSONData = {}
+  let mapJSONData = {
+    tri: {
+      pos: playerPos,
+      ang: playerAngle + ANGLE_OFFSET
+    }
+  }
 
   let ppap = []
 
@@ -130,18 +189,25 @@ function saveMapJSON(){
     ppap.push(ppapoly)
   }
 
-  console.log(JSON.stringify(ppap))
-  saveJSON(ppap, filename+'.json');
+  mapJSONData.p = ppap
+
+  console.log(JSON.stringify(mapJSONData))
+  saveJSON(mapJSONData, filename+'.json');
 
 }
 
 
 function mouseClicked() {
-  polyTrigger = true
-  tempPolArr.push(createVector(mouseX, mouseY))
+  if(triTrigger){
+    triTrigger = !triTrigger
+  }
+  else{
+    polyTrigger = true
+    tempPolArr.push(createVector(mouseX, mouseY))
 
-  tempMouseX = mouseX
-  tempMouseY = mouseY
+    tempMouseX = mouseX
+    tempMouseY = mouseY
+  }
 }
 
 function trianglePoints(tRotation, tSize, posX, posY){
