@@ -1,7 +1,7 @@
 let population;
 let polyWall;
 
-let filename = 'est'
+let filename = 'sample'
 let polyJSON = {}
 
 let goalArea

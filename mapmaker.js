@@ -192,6 +192,7 @@ function keyPressed() {
 function cancelPolyWall(){
   tempPolArr = []
   polyTrigger = false
+  goalTrigger = false
 }
 
 function setGoalPoly(){
@@ -211,6 +212,11 @@ function saveMapJSON(){
 
   if(Object.keys(playerPos) == 0){
     console.log('Triangle has not been set')
+    return
+  }
+
+  if(goalPoly.length == 0){
+    console.log("Invalid goal polygon")
     return
   }
 
