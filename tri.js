@@ -1,4 +1,4 @@
-function Tri(triSize){
+function Tri(triSize, triData){
     //Brain class
 
     this.MOVEMENT_SPEED_MODES = [0.3, 0.5, 0.7]
@@ -10,9 +10,9 @@ function Tri(triSize){
     }
     
     this.triSize = triSize
-    this.triRotation = 0
-    this.posX = TRI_START_POINT_X
-    this.posY = TRI_START_POINT_Y
+    this.triRotation = triData.ang
+    this.posX = triData.pos.x
+    this.posY = triData.pos.y
 
     this.movementSpeed = 0.5
     this.rotationSpeed = 5
@@ -61,15 +61,6 @@ Tri.prototype.showTri = function(){
 }
 
 Tri.prototype.showHUD = function(){
-    if(BLOCK_SCREEN){
-        beginShape()
-        fill(0)
-        vertex(CANVAS_WIDTH,CANVAS_HEIGHT);
-        vertex(0,CANVAS_HEIGHT);
-        vertex(0,0);
-        vertex(CANVAS_WIDTH,0);
-        endShape(CLOSE)
-    }
 
     // TODO: kete REMOVE THINK LINES BELOW
     if(ENABLE_TEST_BRAIN){

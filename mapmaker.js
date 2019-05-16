@@ -219,8 +219,18 @@ function saveMapJSON(){
       pos: playerPos,
       ang: playerAngle + ANGLE_OFFSET
     },
-    gol: goalPoly
   }
+
+  // Convert vector to x and y
+  let tempGoal = []
+  for(let i=0; i < goalPoly.length; i++){
+    tempGoal.push({
+                   x: goalPoly[i].x, 
+                   y: goalPoly[i].y
+                  })
+  }
+
+  mapJSONData.g = tempGoal
 
   let ppap = []
 

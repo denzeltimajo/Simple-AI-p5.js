@@ -1,8 +1,8 @@
-function Population(size){
+function Population(size, triLocationData){
     // Obstacle Walls = new Obstacle
     this.tris = []
     for(let i = 0; i < size; i++){
-        this.tris.push(new Tri(TRI_SIZE))
+        this.tris.push(new Tri(TRI_SIZE, triLocationData))
     }
 }
 
