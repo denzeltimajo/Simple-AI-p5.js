@@ -8,6 +8,8 @@ let polyTrigger = false
 let triTrigger = false
 let goalTrigger = false
 
+let isGoalMode = false
+
 let canvasWidth = CANVAS_WIDTH
 let canvasHeight = CANVAS_HEIGHT
 
@@ -22,6 +24,7 @@ function setup() {
   
   angleMode(DEGREES)
 }
+
 
 let tempMouseX
 let tempMouseY
@@ -38,9 +41,11 @@ let y1
 let x2
 let y2
 
+
 function draw() {
 	background(0xe0);
   
+  // Draws blueprint outline
   push()
   stroke(0x00,0x00,0xff);
 	for(let i=0; i < tempPolArr.length-1; i++){
@@ -51,7 +56,7 @@ function draw() {
 
   // Draw the polygon wall obstacle
   for(let x = 0; x < police.length; x++){
-    poly = police[x]
+    let poly = police[x]
     beginShape();
     for(i=0; i < poly.length; i++){
       vertex(poly[i].x,poly[i].y);
@@ -62,17 +67,16 @@ function draw() {
   // Draw the goal polygon 
   push()
   stroke(0xff,0xff,0x00);
-  for(let x = 0; x < goalPoly.length; x++){
-    poly = goalPoly[x]
-    beginShape();
-    for(i=0; i < poly.length; i++){
-      vertex(poly[i].x,poly[i].y);
-    }
-    endShape(CLOSE);
+  fill(0xff,0xff,0x00);
+  beginShape();
+  for(let i=0; i < goalPoly.length; i++){
+    vertex(goalPoly[i].x, goalPoly[i].y);
   }
+  endShape(CLOSE);
   pop()
 
-  if(polyTrigger){
+  // Will draw a line a mouse move
+  if(polyTrigger || goalTrigger){
     x1 = tempMouseX;
     y1 = tempMouseY;
     x2 = mouseX;
@@ -110,6 +114,16 @@ function draw() {
 
     pop()
   }
+
+  // Show text that goal poly is on
+  if(isGoalMode){
+    push()
+    fill("#ff0")
+    textSize(30);
+    text('Goal mode ON', 20, 30);
+    pop()
+  }
+
 }
 
 function keyPressed() {
@@ -117,15 +131,20 @@ function keyPressed() {
   
   // SPACE
   if (keyIsDown(32)) {
-    police.push(tempPolArr)
-    tempPolArr = []
-    polyTrigger = false
+    if(isGoalMode){
+      isGoalMode = false
+      setGoalPoly()
+    }
+    else{
+      police.push(tempPolArr)
+      tempPolArr = []
+      polyTrigger = false
+    }
   }
   
   // DELETE or ESC
   if (keyIsDown(46) || keyIsDown(27)) {
-    tempPolArr = []
-    polyTrigger = false
+    cancelPolyWall()
   }
   // R
   if (keyIsDown(82)) {
@@ -146,17 +165,39 @@ function keyPressed() {
 
   }
 
+  // G
+  if(keyIsDown(71)){
+    isGoalMode = !isGoalMode
+
+    if(!isGoalMode) {
+      setGoalPoly()
+    }
+    else{
+      cancelPolyWall()
+    }
+  }
+
   // F5
   if (keyIsDown(116)) {
     reload()
   }
 
   // if (keyIsDown(90)) {
-  //   // UNDO
-  //   movementSpeed = 0.7
+  //   // UNDO POLYWALL CREATIONS
   // }
 
   return false; // prevent default
+}
+
+function cancelPolyWall(){
+  tempPolArr = []
+  polyTrigger = false
+}
+
+function setGoalPoly(){
+  goalPoly = tempPolArr
+  tempPolArr = []
+  goalTrigger = false
 }
 
 
@@ -168,11 +209,17 @@ function saveMapJSON(){
     return
   }
 
+  if(Object.keys(playerPos) == 0){
+    console.log('Triangle has not been set')
+    return
+  }
+
   let mapJSONData = {
     tri: {
       pos: playerPos,
       ang: playerAngle + ANGLE_OFFSET
-    }
+    },
+    gol: goalPoly
   }
 
   let ppap = []
@@ -202,7 +249,13 @@ function mouseClicked() {
     triTrigger = !triTrigger
   }
   else{
-    polyTrigger = true
+    if(isGoalMode){
+      goalTrigger = true
+    } 
+    else{
+      polyTrigger = true
+    }
+
     tempPolArr.push(createVector(mouseX, mouseY))
 
     tempMouseX = mouseX
